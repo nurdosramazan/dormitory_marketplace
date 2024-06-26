@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+    front:
+        build: ../front/dormitory_marketplace/.
+        container_name: front
+        depends_on:
+            - web
+
+    web:
+        build: .
+        container_name: web
+        depends_on:
+            - redis
+            - elasticsearch
+        environment:
+            REDIS_HOST: redis
+            ELASTIC_HOST: elasticsearch
+        volumes:
+            - /home/ec2-user/dm_app/images:/media
+
+    redis:
+        container_name: redis
+        image: "redis:latest"
+
+    elasticsearch:
+        container_name: elasticsearch
+        environment:
+            discovery.type: single-node
+            xpack.security.enabled: false
+        image: "elasticsearch:8.9.0"
+
+    nginx:
+        build: ./nginx
+        container_name: nginx
+        depends_on:
+            - web
+        ports:
+            - "80:80"
+        volumes:
+            - /home/ec2-user/dm_app/images:/home/images
+
+
+
